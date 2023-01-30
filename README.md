@@ -9,6 +9,16 @@ This package is built to be used with [Server-to-Server OAuth](https://marketpla
 ```go
 package main
 
+import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/fterrag/go-zoom/zoom"
+)
+
 func main() {
 	ctx := context.Background()
 
