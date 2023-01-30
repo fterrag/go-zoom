@@ -191,23 +191,23 @@ func (c *Client) accessToken() (string, error) {
 
 // MeetingSDKJWT creates a Meeting SDK JWT, signs it, and returns the signed string (see https://marketplace.zoom.us/docs/sdk/native-sdks/auth/#meeting-sdk-auth).
 // role is required for web, optional for native. 0 to specify participant or 1 to specify host.
-// exp is the duration or expiration of JWT from now. Minimum duration is 1800 seconds, maximum duration is 48 hours. Default duration is 24 hours.
-func MeetingSDKJWT(meetingSDKKey, meetingSDKSecret string, meetingNumber int64, role int, exp time.Duration) (string, error) {
-	if exp == 0 {
-		exp = 24 * time.Hour
+// expiration is the duration or expiration of JWT from now. Minimum duration is 1800 seconds, maximum duration is 48 hours. Default duration is 24 hours.
+func MeetingSDKJWT(meetingSDKKey, meetingSDKSecret string, meetingNumber int64, role int, expiration time.Duration) (string, error) {
+	if expiration == 0 {
+		expiration = 24 * time.Hour
 	}
 
 	now := time.Now().UTC()
-	expiration := now.Add(exp).Unix()
+	exp := now.Add(expiration).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"appKey":   meetingSDKKey,
 		"sdkKey":   meetingSDKKey,
 		"mn":       meetingNumber,
-		"role":     0,
+		"role":     role,
 		"iat":      now.Unix(),
-		"exp":      expiration,
-		"tokenExp": expiration,
+		"exp":      exp,
+		"tokenExp": exp,
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
