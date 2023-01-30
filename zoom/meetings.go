@@ -11,6 +11,8 @@ import (
 )
 
 type MeetingsServicer interface {
+	List(ctx context.Context, userID string, opts *MeetingsListOptions) (*MeetingsListResponse, *http.Response, error)
+	Create(ctx context.Context, userID string, opts *MeetingsCreateOptions) (*MeetingsCreateResponse, *http.Response, error)
 }
 
 type MeetingsService struct {
@@ -22,7 +24,7 @@ var _ MeetingsServicer = (*MeetingsService)(nil)
 type MeetingsListOptions struct {
 	paginationOpts
 
-	Type string `url:"type"`
+	Type *string `url:"type,omitempty"`
 }
 
 type MeetingsListResponse struct {
@@ -56,10 +58,10 @@ func (m *MeetingsService) List(ctx context.Context, userID string, opts *Meeting
 }
 
 type MeetingsCreateOptions struct {
-	DefaultPassword bool                           `json:"default_password"`
-	Settings        *MeetingsCreateOptionsSettings `json:"settings"`
-	StartTime       MeetingsCreateOptionsStartTime `json:"start_time"`
-	Type            int                            `json:"type"`
+	DefaultPassword *bool                           `json:"default_password,omitempty"`
+	Settings        *MeetingsCreateOptionsSettings  `json:"settings,omitempty"`
+	StartTime       *MeetingsCreateOptionsStartTime `json:"start_time,omitempty"`
+	Type            *int                            `json:"type,omitempty"`
 }
 
 type MeetingsCreateOptionsStartTime time.Time
@@ -75,120 +77,120 @@ func (m MeetingsCreateOptionsStartTime) MarshalJSON() ([]byte, error) {
 }
 
 type MeetingsCreateOptionsSettings struct {
-	JBHTime        int  `json:"jbh_time"`
-	JoinBeforeHost bool `json:"join_before_host"`
+	JBHTime        *int  `json:"jbh_time,omitempty"`
+	JoinBeforeHost *bool `json:"join_before_host,omitempty"`
 }
 
 type MeetingsCreateResponseOccurances struct {
-	Duration     int       `json:"duration"`
-	OccurrenceID string    `json:"occurrence_id"`
-	StartTime    time.Time `json:"start_time"`
-	Status       string    `json:"status"`
+	Duration     *int       `json:"duration,omitempty"`
+	OccurrenceID *string    `json:"occurrence_id,omitempty"`
+	StartTime    *time.Time `json:"start_time,omitempty"`
+	Status       *string    `json:"status,omitempty"`
 }
 
 type MeetingsCreateResponseRecurrance struct {
-	EndDateTime    time.Time `json:"end_date_time"`
-	EndTimes       int       `json:"end_times"`
-	MonthlyDay     int       `json:"monthly_day"`
-	MonthlyWeek    int       `json:"monthly_week"`
-	MonthlyWeekDay int       `json:"monthly_week_day"`
-	RepeatInterval int       `json:"repeat_interval"`
-	Type           int       `json:"type"`
-	WeeklyDays     string    `json:"weekly_days"`
+	EndDateTime    *time.Time `json:"end_date_time,omitempty"`
+	EndTimes       *int       `json:"end_times,omitempty"`
+	MonthlyDay     *int       `json:"monthly_day,omitempty"`
+	MonthlyWeek    *int       `json:"monthly_week,omitempty"`
+	MonthlyWeekDay *int       `json:"monthly_week_day,omitempty"`
+	RepeatInterval *int       `json:"repeat_interval,omitempty"`
+	Type           int        `json:"type"`
+	WeeklyDays     *string    `json:"weekly_days,omitempty"`
 }
 
 type MeetingCreateResponseSettings struct {
-	AllowMultipleDevices               bool                                                              `json:"allow_multiple_devices"`
-	AlternativeHosts                   string                                                            `json:"alternative_hosts"`
-	AlternativeHostsEmailNotification  bool                                                              `json:"alternative_hosts_email_notification"`
-	AlternativeHostUpdatePolls         bool                                                              `json:"alternative_host_update_polls"`
-	ApprovalType                       int                                                               `json:"approval_type"`
-	ApprovedOrDeniedCountriesOrRegions *MeetingsCreateResponseSettingsApprovedOrDeniedCountriesOrRegions `json:"approved_or_denied_countries_or_regions"`
-	Audio                              string                                                            `json:"audio"`
-	AuthenticationDomains              string                                                            `json:"authentication_domains"`
-	AuthenticationException            []*MeetingsCreateResponseSettingsAuthenticationException          `json:"authentication_exception"`
-	AuthenticationName                 string                                                            `json:"authentication_name"`
-	AuthenticationOption               string                                                            `json:"authentication_option"`
-	AutoRecording                      string                                                            `json:"auto_recording"`
-	BreakoutRoom                       *MeetingsCreateResponseSettingsBreakoutRoom                       `json:"breakout_room"`
-	CalendarType                       int                                                               `json:"calendar_type"`
-	CloseRegistration                  bool                                                              `json:"close_registration"`
-	ContactEmail                       string                                                            `json:"contact_email"`
-	ContactName                        string                                                            `json:"contact_name"`
-	CustomKeys                         []*MeetingsCreateResponseSettingsCustomKey                        `json:"custom_keys"`
-	EmailNotification                  bool                                                              `json:"email_notification"`
-	EncryptionType                     string                                                            `json:"encryption_type"`
-	FocusMode                          bool                                                              `json:"focus_mode"`
-	GlobalDialInCountries              []string                                                          `json:"global_dial_in_countries"`
-	GlobalDialInNumbers                []*MeetingsCreateResponseSettingsGlobalDialInNumber               `json:"global_dial_in_numbers"`
-	HostSaveVideoOrder                 bool                                                              `json:"host_save_video_order"`
-	HostVideo                          bool                                                              `json:"host_video"`
-	JbhTime                            int                                                               `json:"jbh_time"`
-	JoinBeforeHost                     bool                                                              `json:"join_before_host"`
-	LanguageInterpretation             *MeetingsCreateResponseSettingsLanguageInterpretation             `json:"language_interpretation"`
-	MeetingAuthentication              bool                                                              `json:"meeting_authentication"`
-	MuteUponEntry                      bool                                                              `json:"mute_upon_entry"`
-	ParticipantVideo                   bool                                                              `json:"participant_video"`
-	PrivateMeeting                     bool                                                              `json:"private_meeting"`
-	RegistrantsConfirmationEmail       bool                                                              `json:"registrants_confirmation_email"`
-	RegistrantsEmailNotification       bool                                                              `json:"registrants_email_notification"`
-	RegistrationType                   int                                                               `json:"registration_type"`
-	ShowShareButton                    bool                                                              `json:"show_share_button"`
-	UsePmi                             bool                                                              `json:"use_pmi"`
-	WaitingRoom                        bool                                                              `json:"waiting_room"`
-	Watermark                          bool                                                              `json:"watermark"`
+	AllowMultipleDevices               *bool                                                             `json:"allow_multiple_devices,omitempty"`
+	AlternativeHosts                   *string                                                           `json:"alternative_hosts,omitempty"`
+	AlternativeHostsEmailNotification  *bool                                                             `json:"alternative_hosts_email_notification,omitempty"`
+	AlternativeHostUpdatePolls         *bool                                                             `json:"alternative_host_update_polls,omitempty"`
+	ApprovalType                       *int                                                              `json:"approval_type,omitempty"`
+	ApprovedOrDeniedCountriesOrRegions *MeetingsCreateResponseSettingsApprovedOrDeniedCountriesOrRegions `json:"approved_or_denied_countries_or_regions,omitempty"`
+	Audio                              *string                                                           `json:"audio,omitempty"`
+	AuthenticationDomains              *string                                                           `json:"authentication_domains,omitempty"`
+	AuthenticationException            *[]*MeetingsCreateResponseSettingsAuthenticationException         `json:"authentication_exception,omitempty"`
+	AuthenticationName                 *string                                                           `json:"authentication_name,omitempty"`
+	AuthenticationOption               *string                                                           `json:"authentication_option,omitempty"`
+	AutoRecording                      *string                                                           `json:"auto_recording,omitempty"`
+	BreakoutRoom                       *MeetingsCreateResponseSettingsBreakoutRoom                       `json:"breakout_room,omitempty"`
+	CalendarType                       *int                                                              `json:"calendar_type,omitempty"`
+	CloseRegistration                  *bool                                                             `json:"close_registration,omitempty"`
+	ContactEmail                       *string                                                           `json:"contact_email,omitempty"`
+	ContactName                        *string                                                           `json:"contact_name,omitempty"`
+	CustomKeys                         *[]*MeetingsCreateResponseSettingsCustomKey                       `json:"custom_keys,omitempty"`
+	EmailNotification                  *bool                                                             `json:"email_notification,omitempty"`
+	EncryptionType                     *string                                                           `json:"encryption_type,omitempty"`
+	FocusMode                          *bool                                                             `json:"focus_mode,omitempty"`
+	GlobalDialInCountries              *[]string                                                         `json:"global_dial_in_countries,omitempty"`
+	GlobalDialInNumbers                *[]*MeetingsCreateResponseSettingsGlobalDialInNumber              `json:"global_dial_in_numbers,omitempty"`
+	HostSaveVideoOrder                 *bool                                                             `json:"host_save_video_order,omitempty"`
+	HostVideo                          *bool                                                             `json:"host_video,omitempty"`
+	JbhTime                            *int                                                              `json:"jbh_time,omitempty"`
+	JoinBeforeHost                     *bool                                                             `json:"join_before_host,omitempty"`
+	LanguageInterpretation             *MeetingsCreateResponseSettingsLanguageInterpretation             `json:"language_interpretation,omitempty"`
+	MeetingAuthentication              *bool                                                             `json:"meeting_authentication,omitempty"`
+	MuteUponEntry                      *bool                                                             `json:"mute_upon_entry,omitempty"`
+	ParticipantVideo                   *bool                                                             `json:"participant_video,omitempty"`
+	PrivateMeeting                     *bool                                                             `json:"private_meeting,omitempty"`
+	RegistrantsConfirmationEmail       *bool                                                             `json:"registrants_confirmation_email,omitempty"`
+	RegistrantsEmailNotification       *bool                                                             `json:"registrants_email_notification,omitempty"`
+	RegistrationType                   *int                                                              `json:"registration_type,omitempty"`
+	ShowShareButton                    *bool                                                             `json:"show_share_button,omitempty"`
+	UsePmi                             *bool                                                             `json:"use_pmi,omitempty"`
+	WaitingRoom                        *bool                                                             `json:"waiting_room,omitempty"`
+	Watermark                          *bool                                                             `json:"watermark,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsApprovedOrDeniedCountriesOrRegions struct {
-	ApprovedList []string `json:"approved_list"`
-	DeniedList   []string `json:"denied_list"`
-	Enable       bool     `json:"enable"`
-	Method       string   `json:"method"`
+	ApprovedList *[]string `json:"approved_list,omitempty"`
+	DeniedList   *[]string `json:"denied_list,omitempty"`
+	Enable       *bool     `json:"enable,omitempty"`
+	Method       *string   `json:"method,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsAuthenticationException struct {
-	Email   string `json:"email"`
-	JoinURL string `json:"join_url"`
-	Name    string `json:"name"`
+	Email   *string `json:"email,omitempty"`
+	JoinURL *string `json:"join_url,omitempty"`
+	Name    *string `json:"name,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsBreakoutRoom struct {
-	Enable bool                                              `json:"enable"`
-	Rooms  []*MeetingsCreateResponseSettingsBreakoutRoomRoom `json:"rooms"`
+	Enable *bool                                              `json:"enable,omitempty"`
+	Rooms  *[]*MeetingsCreateResponseSettingsBreakoutRoomRoom `json:"rooms,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsBreakoutRoomRoom struct {
-	Name         string   `json:"name"`
-	Participants []string `json:"participants"`
+	Name         *string   `json:"name,omitempty"`
+	Participants *[]string `json:"participants,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsCustomKey struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key   *string `json:"key,omitempty"`
+	Value *string `json:"value,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsGlobalDialInNumber struct {
-	City        string `json:"city"`
-	Country     string `json:"country"`
-	CountryName string `json:"country_name"`
-	Number      string `json:"number"`
-	Type        string `json:"type"`
+	City        *string `json:"city,omitempty"`
+	Country     *string `json:"country,omitempty"`
+	CountryName *string `json:"country_name,omitempty"`
+	Number      *string `json:"number,omitempty"`
+	Type        *string `json:"type,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsLanguageInterpretation struct {
-	Enable       bool                                                               `json:"enable"`
-	Interpreters []*MeetingsCreateResponseSettingsLanguageInterpretationInterpreter `json:"interpreters"`
+	Enable       *bool                                                               `json:"enable,omitempty"`
+	Interpreters *[]*MeetingsCreateResponseSettingsLanguageInterpretationInterpreter `json:"interpreters,omitempty"`
 }
 
 type MeetingsCreateResponseSettingsLanguageInterpretationInterpreter struct {
-	Email     string `json:"email"`
-	Languages string `json:"languages"`
+	Email     *string `json:"email,omitempty"`
+	Languages *string `json:"languages,omitempty"`
 }
 
 type MeetingsCreateResponseTrackingField struct {
-	Field   string `json:"field"`
-	Value   string `json:"value"`
-	Visible bool   `json:"visible"`
+	Field   string  `json:"field"`
+	Value   *string `json:"value,omitempty"`
+	Visible *bool   `json:"visible,omitempty"`
 }
 
 type MeetingsCreateResponse struct {

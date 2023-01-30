@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/eleanorhealth/go-common/pkg/errs"
+	"github.com/golang-jwt/jwt/v4"
 	querystring "github.com/google/go-querystring/query"
 )
 
@@ -35,9 +36,9 @@ type Client struct {
 }
 
 type paginationOpts struct {
-	NextPageToken string `url:"next_page_token"`
-	PageNumber    int    `url:"page_number"`
-	PageSize      int    `url:"page_size"`
+	NextPageToken string `url:"next_page_token,omitempty"`
+	PageNumber    int    `url:"page_number,omitempty"`
+	PageSize      int    `url:"page_size,omitempty"`
 }
 
 // NewClient assumes the usage of Server-to-Server OAuth app (https://marketplace.zoom.us/docs/guides/build/server-to-server-oauth-app/)
@@ -178,4 +179,34 @@ func (c *Client) accessToken() (string, error) {
 	c.tokenExpiration = time.Now().Add(time.Duration(expiresIn) * time.Second)
 
 	return c.token, nil
+}
+
+// MeetingSDKJWT creates a Meeting SDK JWT, signs it, and returns the signed string (see https://marketplace.zoom.us/docs/sdk/native-sdks/auth/#meeting-sdk-auth).
+// role is required for web, optional for native. 0 to specify participant or 1 to specify host.
+// exp is the duration or expiration of JWT from now. Minimum duration is 1800 seconds, maximum duration is 48 hours. Default duration is 24 hours.
+func MeetingSDKJWT(meetingSDKKey, meetingSDKSecret string, meetingNumber int64, role int, exp time.Duration) (string, error) {
+	if exp == 0 {
+		exp = 24 * time.Hour
+	}
+
+	now := time.Now().UTC()
+	expiration := now.Add(exp).Unix()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"appKey":   meetingSDKKey,
+		"sdkKey":   meetingSDKKey,
+		"mn":       meetingNumber,
+		"role":     0,
+		"iat":      now.Unix(),
+		"exp":      expiration,
+		"tokenExp": expiration,
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenStr, err := token.SignedString([]byte(meetingSDKSecret))
+	if err != nil {
+		return "", errs.Wrap(err, "signing JWT")
+	}
+
+	return tokenStr, nil
 }

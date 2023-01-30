@@ -24,9 +24,9 @@ var _ UsersServicer = (*UsersService)(nil)
 type UsersListOptions struct {
 	paginationOpts
 
-	IncludeFields []string `url:"include_fields"`
-	RoleID        string   `url:"role_id"`
-	Status        []string `url:"status"`
+	IncludeFields *[]string `url:"include_fields,omitempty"`
+	RoleID        *string   `url:"role_id,omitempty"`
+	Status        *[]string `url:"status,omitempty"`
 }
 
 type UsersListResponse struct {
@@ -74,17 +74,17 @@ func (u *UsersService) List(ctx context.Context, opts *UsersListOptions) (*Users
 }
 
 type UsersCreateOptions struct {
-	Action   string                     `json:"action"`
-	UserInfo UsersCreateOptionsUserInfo `json:"user_info"`
+	Action   string                      `json:"action"`
+	UserInfo *UsersCreateOptionsUserInfo `json:"user_info"`
 }
 
 type UsersCreateOptionsUserInfo struct {
-	DisplayName string `json:"display_name"`
-	Email       string `json:"email"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Password    string `json:"password"`
-	Type        int    `json:"type"`
+	DisplayName *string `json:"display_name,omitempty"`
+	Email       string  `json:"email"`
+	FirstName   *string `json:"first_name,omitempty"`
+	LastName    *string `json:"last_name,omitempty"`
+	Password    *string `json:"password,omitempty"`
+	Type        int     `json:"type"`
 }
 
 type UsersCreateResponse struct {
@@ -107,7 +107,7 @@ func (u *UsersService) Create(ctx context.Context, opts *UsersCreateOptions) (*U
 }
 
 type UsersDeleteOptions struct {
-	Action string `url:"action"`
+	Action *string `url:"action,omitempty"`
 }
 
 func (u *UsersService) Delete(ctx context.Context, userID string, opts *UsersDeleteOptions) (*http.Response, error) {
