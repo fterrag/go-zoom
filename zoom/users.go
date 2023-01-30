@@ -22,7 +22,7 @@ type UsersService struct {
 var _ UsersServicer = (*UsersService)(nil)
 
 type UsersListOptions struct {
-	paginationOpts
+	paginationOptions
 
 	IncludeFields *[]string `url:"include_fields,omitempty"`
 	RoleID        *string   `url:"role_id,omitempty"`

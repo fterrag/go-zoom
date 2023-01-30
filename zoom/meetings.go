@@ -22,7 +22,7 @@ type MeetingsService struct {
 var _ MeetingsServicer = (*MeetingsService)(nil)
 
 type MeetingsListOptions struct {
-	paginationOpts
+	paginationOptions
 
 	Type *string `url:"type,omitempty"`
 }

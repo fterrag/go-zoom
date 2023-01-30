@@ -35,7 +35,7 @@ type Client struct {
 	Meetings *MeetingsService
 }
 
-type paginationOpts struct {
+type paginationOptions struct {
 	NextPageToken string `url:"next_page_token,omitempty"`
 	PageNumber    int    `url:"page_number,omitempty"`
 	PageSize      int    `url:"page_size,omitempty"`
