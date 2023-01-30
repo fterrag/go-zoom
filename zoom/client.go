@@ -95,8 +95,6 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 		u = u + "?" + q.Encode()
 	}
 
-	fmt.Println(u)
-
 	reader := bytes.NewReader(nil)
 	if body != nil {
 		b, err := json.Marshal(body)
