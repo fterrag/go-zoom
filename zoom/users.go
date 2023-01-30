@@ -22,14 +22,16 @@ type UsersService struct {
 var _ UsersServicer = (*UsersService)(nil)
 
 type UsersListOptions struct {
-	paginationOptions
+	*PaginationOptions `url:",omitempty"`
 
-	IncludeFields *[]string `url:"include_fields,omitempty"`
-	RoleID        *string   `url:"role_id,omitempty"`
-	Status        *[]string `url:"status,omitempty"`
+	IncludeFields *string `url:"include_fields,omitempty"`
+	RoleID        *string `url:"role_id,omitempty"`
+	Status        *string `url:"status,omitempty"`
 }
 
 type UsersListResponse struct {
+	*PaginationResponse
+
 	Users []*UsersListItem `json:"users"`
 }
 
@@ -40,9 +42,9 @@ type UsersListItem struct {
 	Email             string                          `json:"email"`
 	EmployeeUniqueID  string                          `json:"employee_unique_id"`
 	FirstName         string                          `json:"first_name"`
-	GroupIds          []string                        `json:"group_ids"`
+	GroupIDs          []string                        `json:"group_ids"`
 	ID                string                          `json:"id"`
-	ImGroupIds        []string                        `json:"im_group_ids"`
+	ImGroupIDs        []string                        `json:"im_group_ids"`
 	LastClientVersion string                          `json:"last_client_version"`
 	LastLoginTime     time.Time                       `json:"last_login_time"`
 	LastName          string                          `json:"last_name"`

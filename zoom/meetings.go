@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/eleanorhealth/go-common/pkg/errs"
@@ -13,6 +14,7 @@ import (
 type MeetingsServicer interface {
 	List(ctx context.Context, userID string, opts *MeetingsListOptions) (*MeetingsListResponse, *http.Response, error)
 	Create(ctx context.Context, userID string, opts *MeetingsCreateOptions) (*MeetingsCreateResponse, *http.Response, error)
+	Delete(ctx context.Context, meetingID int64, opts *MeetingsDeleteOptions) (*http.Response, error)
 }
 
 type MeetingsService struct {
@@ -22,12 +24,14 @@ type MeetingsService struct {
 var _ MeetingsServicer = (*MeetingsService)(nil)
 
 type MeetingsListOptions struct {
-	paginationOptions
+	*PaginationOptions `url:",omitempty"`
 
 	Type *string `url:"type,omitempty"`
 }
 
 type MeetingsListResponse struct {
+	*PaginationResponse
+
 	Meetings []*MeetingsListItem `json:"meetings"`
 }
 
@@ -49,7 +53,7 @@ type MeetingsListItem struct {
 func (m *MeetingsService) List(ctx context.Context, userID string, opts *MeetingsListOptions) (*MeetingsListResponse, *http.Response, error) {
 	out := &MeetingsListResponse{}
 
-	res, err := m.client.request(ctx, http.MethodGet, "/meetings/"+url.QueryEscape(userID), opts, nil, out)
+	res, err := m.client.request(ctx, http.MethodGet, "/users/"+url.QueryEscape(userID)+"/meetings", opts, nil, out)
 	if err != nil {
 		return nil, nil, errs.Wrap(err, "making HTTP request")
 	}
@@ -226,4 +230,20 @@ func (m *MeetingsService) Create(ctx context.Context, userID string, opts *Meeti
 	}
 
 	return out, res, nil
+}
+
+type MeetingsDeleteOptions struct {
+	OccurrenceID          *string `url:"occurrence_id,omitempty"`
+	ScheduleForReminder   *bool   `url:"schedule_for_reminder,omitempty"`
+	CancelMeetingReminder *bool   `url:"cancel_meeting_reminder,omitempty"`
+}
+
+func (m *MeetingsService) Delete(ctx context.Context, meetingID int64, opts *MeetingsDeleteOptions) (*http.Response, error) {
+	mID := strconv.Itoa(int(meetingID))
+	res, err := m.client.request(ctx, http.MethodDelete, "/meetings/"+url.QueryEscape(mID), opts, nil, nil)
+	if err != nil {
+		return res, errs.Wrap(err, "making request")
+	}
+
+	return res, nil
 }

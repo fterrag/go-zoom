@@ -35,10 +35,18 @@ type Client struct {
 	Meetings *MeetingsService
 }
 
-type paginationOptions struct {
+type PaginationOptions struct {
 	NextPageToken string `url:"next_page_token,omitempty"`
 	PageNumber    int    `url:"page_number,omitempty"`
 	PageSize      int    `url:"page_size,omitempty"`
+}
+
+type PaginationResponse struct {
+	NextPageToken string `json:"next_page_token"`
+	PageCount     int    `json:"page_count"`
+	PageNumber    int    `json:"page_number"`
+	PageSize      int    `json:"page_size"`
+	TotalRecords  int    `json:"total_records"`
 }
 
 // NewClient assumes the usage of Server-to-Server OAuth app (https://marketplace.zoom.us/docs/guides/build/server-to-server-oauth-app/)
@@ -86,6 +94,8 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 	if len(q) > 0 {
 		u = u + "?" + q.Encode()
 	}
+
+	fmt.Println(u)
 
 	reader := bytes.NewReader(nil)
 	if body != nil {
