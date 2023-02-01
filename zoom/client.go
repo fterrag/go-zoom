@@ -36,15 +36,13 @@ type Client struct {
 }
 
 type PaginationOptions struct {
-	NextPageToken string `url:"next_page_token,omitempty"`
-	PageNumber    int    `url:"page_number,omitempty"`
-	PageSize      int    `url:"page_size,omitempty"`
+	NextPageToken *string `url:"next_page_token,omitempty"`
+	PageSize      *int    `url:"page_size,omitempty"`
 }
 
 type PaginationResponse struct {
 	NextPageToken string `json:"next_page_token"`
 	PageCount     int    `json:"page_count"`
-	PageNumber    int    `json:"page_number"`
 	PageSize      int    `json:"page_size"`
 	TotalRecords  int    `json:"total_records"`
 }
