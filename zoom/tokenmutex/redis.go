@@ -52,6 +52,10 @@ func (r *Redis) Lock(ctx context.Context, d time.Duration) error {
 }
 
 func (r *Redis) Unlock(ctx context.Context) error {
+	if r.lock == nil {
+		return nil
+	}
+
 	err := r.lock.Release(ctx)
 	if err != nil {
 		return errs.Wrap(err, "releasing lock")
