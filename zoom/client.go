@@ -117,6 +117,10 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 	}
 
 	if res.StatusCode > http.StatusIMUsed {
+		if res.StatusCode == http.StatusUnauthorized {
+			c.clearAccessToken()
+		}
+
 		errRes := &ErrorResponse{}
 		err = json.NewDecoder(res.Body).Decode(errRes)
 		if err != nil {
@@ -185,6 +189,14 @@ func (c *Client) accessToken() (string, error) {
 	c.tokenExpiration = time.Now().Add(time.Duration(expiresIn) * time.Second)
 
 	return c.token, nil
+}
+
+func (c *Client) clearAccessToken() {
+	c.tokenLock.Lock()
+	defer c.tokenLock.Unlock()
+
+	c.token = ""
+	c.tokenExpiration = time.Time{}
 }
 
 // MeetingSDKJWT creates a Meeting SDK JWT, signs it, and returns the signed string (see https://marketplace.zoom.us/docs/sdk/native-sdks/auth/#meeting-sdk-auth).
