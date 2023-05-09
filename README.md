@@ -23,7 +23,7 @@ func main() {
 	ctx := context.Background()
 
 	httpClient := &http.Client{}
-	client := zoom.NewClient(httpClient, os.Getenv("ZOOM_ACCOUNT_ID"), os.Getenv("ZOOM_CLIENT_ID"), os.Getenv("ZOOM_CLIENT_SECRET"))
+	client := zoom.NewClient(httpClient, os.Getenv("ZOOM_ACCOUNT_ID"), os.Getenv("ZOOM_CLIENT_ID"), os.Getenv("ZOOM_CLIENT_SECRET"), nil)
 
 	res, _, err := client.Users.List(ctx, nil)
 	if err != nil {
