@@ -10,7 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const RedisDefaultKey = "zoom_access_token"
+const redisDefaultKey = "zoom_access_token"
 const redisLockKey = "zoom_access_token_lock"
 
 type Redis struct {
@@ -32,7 +32,7 @@ func NewRedis(client *redis.Client, key string) *Redis {
 	}
 
 	if len(r.key) == 0 {
-		r.key = RedisDefaultKey
+		r.key = redisDefaultKey
 	}
 
 	return r

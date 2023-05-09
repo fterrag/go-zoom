@@ -21,20 +21,20 @@ func TestRedis_Lock_Unlock(t *testing.T) {
 	}
 	defer s.Close()
 
-	cacher := NewRedis(redis.NewClient(&redis.Options{
+	mutex := NewRedis(redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	}), "")
 
-	err = cacher.Unlock(context.Background())
+	err = mutex.Unlock(context.Background())
 	assert.ErrorIs(err, redislock.ErrLockNotHeld)
 
-	err = cacher.Lock(context.Background(), 10*time.Second)
+	err = mutex.Lock(context.Background(), 10*time.Second)
 	assert.NoError(err)
 
-	err = cacher.Lock(context.Background(), 10*time.Second)
+	err = mutex.Lock(context.Background(), 10*time.Second)
 	assert.ErrorIs(err, redislock.ErrNotObtained)
 
-	err = cacher.Unlock(context.Background())
+	err = mutex.Unlock(context.Background())
 	assert.NoError(err)
 }
 
@@ -49,14 +49,14 @@ func TestRedis_Get(t *testing.T) {
 
 	expectedToken := "foo"
 
-	s.Set(RedisDefaultKey, expectedToken)
-	s.SetTTL(RedisDefaultKey, time.Minute*1)
+	s.Set(redisDefaultKey, expectedToken)
+	s.SetTTL(redisDefaultKey, time.Minute*1)
 
-	cacher := NewRedis(redis.NewClient(&redis.Options{
+	mutex := NewRedis(redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	}), "")
 
-	token, err := cacher.Get(context.Background())
+	token, err := mutex.Get(context.Background())
 
 	assert.Equal(expectedToken, token)
 	assert.NoError(err)
@@ -71,11 +71,11 @@ func TestRedis_Get_ErrTokenNotExist(t *testing.T) {
 	}
 	defer s.Close()
 
-	cacher := NewRedis(redis.NewClient(&redis.Options{
+	mutex := NewRedis(redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	}), "")
 
-	token, err := cacher.Get(context.Background())
+	token, err := mutex.Get(context.Background())
 
 	assert.Empty(token)
 	assert.Error(err)
@@ -91,25 +91,25 @@ func TestRedis_Set_Clear(t *testing.T) {
 	}
 	defer s.Close()
 
-	cacher := NewRedis(redis.NewClient(&redis.Options{
+	mutex := NewRedis(redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	}), "")
 
 	expectedToken := "foo"
-	err = cacher.Set(context.Background(), expectedToken, time.Now().Add(time.Minute*1))
+	err = mutex.Set(context.Background(), expectedToken, time.Now().Add(time.Minute*1))
 
 	assert.NoError(err)
 
-	token, _ := s.Get(RedisDefaultKey)
-	ttl := s.TTL(RedisDefaultKey)
+	token, _ := s.Get(redisDefaultKey)
+	ttl := s.TTL(redisDefaultKey)
 
 	assert.Equal(expectedToken, token)
 	assert.True(time.Now().Add(time.Second * ttl).After(time.Now()))
 
-	err = cacher.Clear(context.Background())
+	err = mutex.Clear(context.Background())
 	assert.NoError(err)
-	token, err = s.Get(RedisDefaultKey)
+	token, err = s.Get(redisDefaultKey)
 	assert.Equal("", token)
 	assert.Error(err)
-	assert.False(s.Exists(RedisDefaultKey))
+	assert.False(s.Exists(redisDefaultKey))
 }
