@@ -105,7 +105,7 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 				return nil, errs.Wrap(err, "unlocking token mutex")
 			}
 
-			return nil, errs.Wrap(err, "getting access token")
+			return nil, errs.Wrap(err, "getting token mutex")
 		}
 
 		var expiresAt time.Time
@@ -126,7 +126,7 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 				return nil, errs.Wrap(err, "unlocking token mutex")
 			}
 
-			return nil, errs.Wrap(err, "setteing cached access token")
+			return nil, errs.Wrap(err, "setting token mutex")
 		}
 	}
 
@@ -172,7 +172,7 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 		if res.StatusCode == http.StatusUnauthorized {
 			err = c.tokenMutex.Clear(ctx)
 			if err != nil {
-				return nil, errs.Wrap(err, "clearing cached access token when receving a 401 from Zoom")
+				return nil, errs.Wrap(err, "clearing token mutex when receving a 401 from Zoom")
 			}
 		}
 
