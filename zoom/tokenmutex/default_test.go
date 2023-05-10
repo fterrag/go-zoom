@@ -13,7 +13,7 @@ func TestDefault_Lock_Unlock(t *testing.T) {
 	assert := assert.New(t)
 
 	mutex := NewDefault()
-	err := mutex.Lock(context.Background(), 1*time.Second)
+	err := mutex.Lock(context.Background())
 	assert.NoError(err)
 
 	err = mutex.Unlock(context.Background())

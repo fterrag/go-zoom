@@ -38,9 +38,9 @@ func NewRedis(client *redis.Client, key string) *Redis {
 	return r
 }
 
-func (r *Redis) Lock(ctx context.Context, d time.Duration) error {
-	lock, err := r.locker.Obtain(ctx, redisLockKey, d, &redislock.Options{
-		RetryStrategy: redislock.LimitRetry(redislock.LinearBackoff(500*time.Millisecond), 6),
+func (r *Redis) Lock(ctx context.Context) error {
+	lock, err := r.locker.Obtain(ctx, redisLockKey, 30*time.Second, &redislock.Options{
+		RetryStrategy: redislock.LimitRetry(redislock.LinearBackoff(500*time.Millisecond), 60),
 	})
 	if err != nil {
 		return errs.Wrap(err, "obtaining lock")

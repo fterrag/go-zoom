@@ -17,7 +17,7 @@ func NewDefault() *Default {
 	return &Default{}
 }
 
-func (d *Default) Lock(ctx context.Context, dur time.Duration) error {
+func (d *Default) Lock(ctx context.Context) error {
 	d.lock.Lock()
 	return nil
 }
