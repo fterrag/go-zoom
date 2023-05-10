@@ -28,11 +28,8 @@ func TestRedis_Lock_Unlock(t *testing.T) {
 	err = mutex.Unlock(context.Background())
 	assert.NoError(err)
 
-	err = mutex.Lock(context.Background(), 10*time.Second)
+	err = mutex.Lock(context.Background())
 	assert.NoError(err)
-
-	err = mutex.Lock(context.Background(), 10*time.Second)
-	assert.ErrorIs(err, redislock.ErrNotObtained)
 
 	err = mutex.Unlock(context.Background())
 	assert.NoError(err)

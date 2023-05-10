@@ -20,9 +20,6 @@ import (
 const (
 	authURL = "https://zoom.us/oauth/token"
 	baseURL = "https://api.zoom.us/v2"
-
-	tokenMutexLockDuration = time.Second * 10
-	accessTokenTimeout     = time.Second * 5
 )
 
 type Client struct {
@@ -49,7 +46,7 @@ type PaginationResponse struct {
 }
 
 type TokenMutex interface {
-	Lock(context.Context, time.Duration) error
+	Lock(context.Context) error
 	Unlock(context.Context) error
 	Get(context.Context) (string, error)
 	Set(context.Context, string, time.Time) error
@@ -92,7 +89,7 @@ type FieldError struct {
 }
 
 func (c *Client) request(ctx context.Context, method string, path string, query any, body any, out any) (*http.Response, error) {
-	err := c.tokenMutex.Lock(ctx, tokenMutexLockDuration)
+	err := c.tokenMutex.Lock(ctx)
 	if err != nil {
 		return nil, errs.Wrap(err, "locking token mutex")
 	}
@@ -207,9 +204,6 @@ func (c *Client) accessToken(ctx context.Context) (string, time.Time, error) {
 	query.Set("grant_type", "account_credentials")
 	query.Set("account_id", c.accountID)
 
-	ctx, cancel := context.WithTimeout(ctx, accessTokenTimeout)
-	defer cancel()
-
 	req, err := http.NewRequestWithContext(ctx, "POST", authURL+"?"+query.Encode(), nil)
 	if err != nil {
 		return "", time.Time{}, errs.Wrap(err, "making new HTTP request")
@@ -233,8 +227,8 @@ func (c *Client) accessToken(ctx context.Context) (string, time.Time, error) {
 		return "", time.Time{}, errs.Wrap(err, "decoding HTTP response body")
 	}
 
-	// Add a 60 second buffer to the expiration.
-	expiresIn := authRes.ExpiresIn - 60
+	// Add a buffer to the expiration.
+	expiresIn := authRes.ExpiresIn - 300
 
 	return authRes.AccessToken, time.Now().Add(time.Duration(expiresIn) * time.Second), nil
 }
