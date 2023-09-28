@@ -1,6 +1,6 @@
 module github.com/fterrag/go-zoom
 
-go 1.19
+go 1.21
 
 require (
 	github.com/eleanorhealth/go-common v0.0.0-20230117175754-0807982108b5
