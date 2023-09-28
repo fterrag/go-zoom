@@ -11,6 +11,31 @@ import (
 	"github.com/eleanorhealth/go-common/pkg/errs"
 )
 
+const (
+	MeetingTypeInstant        MeetingType = 1
+	MeetingTypeScheduled      MeetingType = 2
+	MeetingTypeRecurring      MeetingType = 3
+	MeetingTypeRecurringFixed MeetingType = 8
+
+	JoinBeforeHostAnytime   JoinBeforeHostTime = 0
+	JoinBeforeHost5Minutes  JoinBeforeHostTime = 5
+	JoinBeforeHost10Minutes JoinBeforeHostTime = 10
+)
+
+type MeetingType int
+
+func (m MeetingType) Int() int {
+	return int(m)
+}
+
+// JoinBeforeHostTime indicates the time limit when a participant can join a meeting before the meeting's host if join_before_host is true.
+// Values are in minutes except 0 which represents anytime.
+type JoinBeforeHostTime int
+
+func (j JoinBeforeHostTime) Int() int {
+	return int(j)
+}
+
 type MeetingsServicer interface {
 	List(ctx context.Context, userID string, opts *MeetingsListOptions) (*MeetingsListResponse, *http.Response, error)
 	Create(ctx context.Context, userID string, opts *MeetingsCreateOptions) (*MeetingsCreateResponse, *http.Response, error)

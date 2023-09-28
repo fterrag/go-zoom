@@ -9,6 +9,19 @@ import (
 	"github.com/eleanorhealth/go-common/pkg/errs"
 )
 
+const (
+	ActionCreate     UsersCreateAction = "create"
+	ActionAutoCreate UsersCreateAction = "autoCreate"
+	ActionCustCreate UsersCreateAction = "custCreate"
+	ActionSSOCreate  UsersCreateAction = "ssoCreate"
+)
+
+type UsersCreateAction string
+
+func (u UsersCreateAction) String() string {
+	return string(u)
+}
+
 type UsersServicer interface {
 	List(ctx context.Context, opts *UsersListOptions) (*UsersListResponse, *http.Response, error)
 	Create(ctx context.Context, opts *UsersCreateOptions) (*UsersCreateResponse, *http.Response, error)
@@ -76,7 +89,7 @@ func (u *UsersService) List(ctx context.Context, opts *UsersListOptions) (*Users
 }
 
 type UsersCreateOptions struct {
-	Action   string                      `json:"action"`
+	Action   UsersCreateAction           `json:"action"`
 	UserInfo *UsersCreateOptionsUserInfo `json:"user_info"`
 }
 
