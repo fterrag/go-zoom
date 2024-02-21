@@ -80,7 +80,7 @@ func (m *MeetingsService) List(ctx context.Context, userID string, opts *Meeting
 
 	res, err := m.client.request(ctx, http.MethodGet, "/users/"+url.QueryEscape(userID)+"/meetings", opts, nil, out)
 	if err != nil {
-		return nil, nil, errs.Wrap(err, "making HTTP request")
+		return nil, res, errs.Wrap(err, "making HTTP request")
 	}
 
 	return out, res, nil

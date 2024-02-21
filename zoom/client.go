@@ -169,7 +169,7 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 		if res.StatusCode == http.StatusUnauthorized {
 			err = c.tokenMutex.Clear(ctx)
 			if err != nil {
-				return nil, errs.Wrap(err, "clearing token mutex when receving a 401 from Zoom")
+				return res, errs.Wrap(err, "clearing token mutex when receiving a 401 from Zoom")
 			}
 		}
 
