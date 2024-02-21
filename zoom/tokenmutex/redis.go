@@ -3,10 +3,10 @@ package tokenmutex
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/bsm/redislock"
-	"github.com/eleanorhealth/go-common/pkg/errs"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -43,7 +43,7 @@ func (r *Redis) Lock(ctx context.Context) error {
 		RetryStrategy: redislock.LimitRetry(redislock.LinearBackoff(500*time.Millisecond), 60),
 	})
 	if err != nil {
-		return errs.Wrap(err, "obtaining lock")
+		return fmt.Errorf("obtaining lock: %w", err)
 	}
 
 	r.lock = lock
@@ -58,7 +58,7 @@ func (r *Redis) Unlock(ctx context.Context) error {
 
 	err := r.lock.Release(ctx)
 	if err != nil {
-		return errs.Wrap(err, "releasing lock")
+		return fmt.Errorf("releasing lock: %w", err)
 	}
 
 	return nil
@@ -71,7 +71,7 @@ func (r *Redis) Get(context.Context) (string, error) {
 			return "", ErrTokenNotExist
 		}
 
-		return "", errs.Wrap(err, "getting key")
+		return "", fmt.Errorf("getting key: %w", err)
 	}
 
 	return val, nil
@@ -80,7 +80,7 @@ func (r *Redis) Get(context.Context) (string, error) {
 func (r *Redis) Set(ctx context.Context, token string, expiresAt time.Time) error {
 	err := r.client.SetEx(ctx, r.key, token, time.Second*time.Duration(expiresAt.Unix()-time.Now().Unix())).Err()
 	if err != nil {
-		return errs.Wrap(err, "setting key")
+		return fmt.Errorf("setting key: %w", err)
 	}
 
 	return nil
@@ -89,7 +89,7 @@ func (r *Redis) Set(ctx context.Context, token string, expiresAt time.Time) erro
 func (r *Redis) Clear(ctx context.Context) error {
 	_, err := r.client.Del(ctx, r.key).Result()
 	if err != nil {
-		return errs.Wrap(err, "deleting key")
+		return fmt.Errorf("deleting key: %w", err)
 	}
 
 	return nil

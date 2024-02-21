@@ -2,10 +2,7 @@ module github.com/fterrag/go-zoom
 
 go 1.22
 
-require (
-	github.com/eleanorhealth/go-common v0.0.0-20240125163923-a374dde1295f
-	github.com/google/go-querystring v1.1.0
-)
+require github.com/google/go-querystring v1.1.0
 
 require (
 	github.com/bsm/redislock v0.9.4

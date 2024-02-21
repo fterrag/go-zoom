@@ -3,12 +3,11 @@ package zoom
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/eleanorhealth/go-common/pkg/errs"
 )
 
 const (
@@ -80,7 +79,7 @@ func (m *MeetingsService) List(ctx context.Context, userID string, opts *Meeting
 
 	res, err := m.client.request(ctx, http.MethodGet, "/users/"+url.QueryEscape(userID)+"/meetings", opts, nil, out)
 	if err != nil {
-		return nil, res, errs.Wrap(err, "making HTTP request")
+		return nil, res, fmt.Errorf("making HTTP request: %w", err)
 	}
 
 	return out, res, nil
@@ -252,7 +251,7 @@ func (m *MeetingsService) Create(ctx context.Context, userID string, opts *Meeti
 
 	res, err := m.client.request(ctx, http.MethodPost, "/users/"+url.QueryEscape(userID)+"/meetings", nil, opts, out)
 	if err != nil {
-		return nil, res, errs.Wrap(err, "making HTTP request")
+		return nil, res, fmt.Errorf("making HTTP request: %w", err)
 	}
 
 	return out, res, nil
@@ -268,7 +267,7 @@ func (m *MeetingsService) Delete(ctx context.Context, meetingID int64, opts *Mee
 	mID := strconv.Itoa(int(meetingID))
 	res, err := m.client.request(ctx, http.MethodDelete, "/meetings/"+url.QueryEscape(mID), opts, nil, nil)
 	if err != nil {
-		return res, errs.Wrap(err, "making request")
+		return res, fmt.Errorf("making request: %w", err)
 	}
 
 	return res, nil
