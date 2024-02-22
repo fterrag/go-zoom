@@ -1,16 +1,13 @@
 module github.com/fterrag/go-zoom
 
-go 1.21
+go 1.22
+
+require github.com/google/go-querystring v1.1.0
 
 require (
-	github.com/eleanorhealth/go-common v0.0.0-20230117175754-0807982108b5
-	github.com/google/go-querystring v1.1.0
-)
-
-require (
-	github.com/bsm/redislock v0.9.3
-	github.com/golang-jwt/jwt/v4 v4.4.3
-	github.com/redis/go-redis/v9 v9.0.4
+	github.com/bsm/redislock v0.9.4
+	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.8.1
 )
 

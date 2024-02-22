@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/eleanorhealth/go-common/pkg/errs"
 	"github.com/fterrag/go-zoom/zoom/tokenmutex"
 	"github.com/golang-jwt/jwt/v4"
 	querystring "github.com/google/go-querystring/query"
@@ -91,7 +90,7 @@ type FieldError struct {
 func (c *Client) request(ctx context.Context, method string, path string, query any, body any, out any) (*http.Response, error) {
 	err := c.tokenMutex.Lock(ctx)
 	if err != nil {
-		return nil, errs.Wrap(err, "locking token mutex")
+		return nil, fmt.Errorf("locking token mutex: %w", err)
 	}
 
 	token, err := c.tokenMutex.Get(ctx)
@@ -99,10 +98,10 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 		if !errors.Is(err, tokenmutex.ErrTokenNotExist) && !errors.Is(err, tokenmutex.ErrTokenExpired) {
 			err = c.tokenMutex.Unlock(ctx)
 			if err != nil {
-				return nil, errs.Wrap(err, "unlocking token mutex")
+				return nil, fmt.Errorf("unlocking token mutex: %w", err)
 			}
 
-			return nil, errs.Wrap(err, "getting token mutex")
+			return nil, fmt.Errorf("getting token mutex: %w", err)
 		}
 
 		var expiresAt time.Time
@@ -110,31 +109,31 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 		if err != nil {
 			err = c.tokenMutex.Unlock(ctx)
 			if err != nil {
-				return nil, errs.Wrap(err, "unlocking token mutex")
+				return nil, fmt.Errorf("unlocking token mutex: %w", err)
 			}
 
-			return nil, errs.Wrap(err, "requesting access token from Zoom")
+			return nil, fmt.Errorf("requesting access token from Zoom: %w", err)
 		}
 
 		err = c.tokenMutex.Set(context.Background(), token, expiresAt)
 		if err != nil {
 			err = c.tokenMutex.Unlock(ctx)
 			if err != nil {
-				return nil, errs.Wrap(err, "unlocking token mutex")
+				return nil, fmt.Errorf("unlocking token mutex: %w", err)
 			}
 
-			return nil, errs.Wrap(err, "setting token mutex")
+			return nil, fmt.Errorf("setting token mutex: %w", err)
 		}
 	}
 
 	err = c.tokenMutex.Unlock(ctx)
 	if err != nil {
-		return nil, errs.Wrap(err, "unlocking token mutex")
+		return nil, fmt.Errorf("unlocking token mutex: %w", err)
 	}
 
 	q, err := querystring.Values(query)
 	if err != nil {
-		return nil, errs.Wrap(err, "encoding URL query")
+		return nil, fmt.Errorf("encoding URL query: %w", err)
 	}
 
 	u := baseURL + path
@@ -146,7 +145,7 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
-			return nil, errs.Wrap(err, "marshaling request body")
+			return nil, fmt.Errorf("marshaling request body: %w", err)
 		}
 
 		reader = bytes.NewReader(b)
@@ -154,7 +153,7 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 
 	req, err := http.NewRequest(method, u, reader)
 	if err != nil {
-		return nil, errs.Wrap(err, "making new HTTP request")
+		return nil, fmt.Errorf("making new HTTP request: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -162,30 +161,30 @@ func (c *Client) request(ctx context.Context, method string, path string, query 
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, errs.Wrap(err, "doing HTTP request")
+		return nil, fmt.Errorf("doing HTTP request: %w", err)
 	}
 
 	if res.StatusCode > http.StatusIMUsed {
 		if res.StatusCode == http.StatusUnauthorized {
 			err = c.tokenMutex.Clear(ctx)
 			if err != nil {
-				return res, errs.Wrap(err, "clearing token mutex when receiving a 401 from Zoom")
+				return res, fmt.Errorf("clearing token mutex when receiving a 401 from Zoom: %w", err)
 			}
 		}
 
 		errRes := &ErrorResponse{}
 		err = json.NewDecoder(res.Body).Decode(errRes)
 		if err != nil {
-			return res, errs.Wrap(err, "decoding response body")
+			return res, fmt.Errorf("decoding response body: %w", err)
 		}
 
-		return res, errs.Wrap(errRes, "Zoom API error")
+		return res, fmt.Errorf("Zoom API error: %w", errRes)
 	}
 
 	if out != nil {
 		err = json.NewDecoder(res.Body).Decode(out)
 		if err != nil {
-			return res, errs.Wrap(err, "decoding response body")
+			return res, fmt.Errorf("decoding response body: %w", err)
 		}
 	}
 
@@ -206,7 +205,7 @@ func (c *Client) accessToken(ctx context.Context) (string, time.Time, error) {
 
 	req, err := http.NewRequestWithContext(ctx, "POST", authURL+"?"+query.Encode(), nil)
 	if err != nil {
-		return "", time.Time{}, errs.Wrap(err, "making new HTTP request")
+		return "", time.Time{}, fmt.Errorf("making new HTTP request: %w", err)
 	}
 
 	auth := base64.URLEncoding.EncodeToString([]byte(c.clientID + ":" + c.clientSecret))
@@ -214,7 +213,7 @@ func (c *Client) accessToken(ctx context.Context) (string, time.Time, error) {
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return "", time.Time{}, errs.Wrap(err, "doing HTTP request")
+		return "", time.Time{}, fmt.Errorf("doing HTTP request: %w", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -224,7 +223,7 @@ func (c *Client) accessToken(ctx context.Context) (string, time.Time, error) {
 	authRes := &authResponse{}
 	err = json.NewDecoder(res.Body).Decode(authRes)
 	if err != nil {
-		return "", time.Time{}, errs.Wrap(err, "decoding HTTP response body")
+		return "", time.Time{}, fmt.Errorf("decoding HTTP response body: %w", err)
 	}
 
 	// Add a buffer to the expiration.
@@ -257,7 +256,7 @@ func MeetingSDKJWT(meetingSDKKey, meetingSDKSecret string, meetingNumber int64, 
 	// Sign and get the complete encoded token as a string using the secret
 	tokenStr, err := token.SignedString([]byte(meetingSDKSecret))
 	if err != nil {
-		return "", errs.Wrap(err, "signing JWT")
+		return "", fmt.Errorf("signing JWT: %w", err)
 	}
 
 	return tokenStr, nil
